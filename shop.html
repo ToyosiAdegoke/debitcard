@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shop Gift Cards</title>
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+</head>
+<body>
+  <h2>Available Gift Cards</h2>
+  <div id="cards"></div>
+
+  <script>
+    // Fetch cards from backend
+    fetch('admin/fetch_cards.php')
+      .then(res => res.json())
+      .then(cards => {
+        let html = '';
+        cards.forEach(card => {
+          html += `
+            <div style="border:1px solid #ccc;padding:10px;">
+              <h3>${card.name}</h3>
+              <p>Price: $${card.price}</p>
+              <button onclick="payWithFlutterwave('${card.name}', ${card.price})">Buy Now</button>
+            </div>
+          `;
+        });
+        document.getElementById('cards').innerHTML = html;
+      });
+
+    function payWithFlutterwave(itemName, price) {
+      FlutterwaveCheckout({
+        public_key: "YOUR_FLUTTERWAVE_PUBLIC_KEY",
+        tx_ref: "tx-" + Date.now(),
+        amount: price,
+        currency: "USD",
+        customer: {
+          email: "customer@example.com"
+        },
+        callback: function(response) {
+          alert("Payment Successful! Transaction ID: " + response.transaction_id);
+          // You could then send confirmation to backend here
+        }
+      });
+    }
+  </script>
+</body>
+</html>
